@@ -1,10 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.java.aidl.MainActivity">
+    android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/iv_pic"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:background="@color/colorPrimary"
+                android:scaleType="fitCenter" />
+
+            <Button
+                android:id="@+id/btn_bind_service"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="客户端绑定服务"
+                android:textColor="#333333" />
+
+            <Button
+                android:id="@+id/btn_unbind_service"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="客户端解除绑定服务"
+                android:textColor="#333333" />
+
+            <Button
+                android:id="@+id/btn_send_to_server"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="客户端发送大图片到服务端"
+                android:textColor="#333333" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
