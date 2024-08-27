@@ -103,6 +103,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void unbindService() {
-        unbindService(mServiceConnection);
+        if(mServiceConnection!=null){
+            unbindService(mServiceConnection);
+            Log.d(TAG, "unbind success");
+            mServiceConnection = null;
+        }
+
     }
 }
