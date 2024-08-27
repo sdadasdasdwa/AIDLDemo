@@ -14,6 +14,7 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.frank.aidldemo.Book;
 import com.frank.aidldemo.ClientToServer;
 import com.frank.aidldemo.R;
 
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mStub = ClientToServer.Stub.asInterface(service);
             if (mStub != null) {
                 try {
-                    mStub.client2server("Client Send to Server");
+                    mStub.sendBook(new Book("I'm Ms.CG"));
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }

@@ -8,6 +8,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.frank.aidldemo.Book;
 import com.frank.aidldemo.ClientToServer;
 
 public class MyService extends Service {
@@ -16,6 +17,11 @@ public class MyService extends Service {
 
 
     private final ClientToServer.Stub mbinder =new ClientToServer.Stub(){
+
+        @Override
+        public void sendBook(Book book) throws RemoteException {
+            Log.d(TAG,"sendBook: " + book.toString());
+        }
 
         @Override
         public String client2server(String param) throws RemoteException {
