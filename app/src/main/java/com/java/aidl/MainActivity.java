@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -33,6 +32,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(TAG, "onServiceConnected() called with: name = $name, binder = $binder");
             mStub = ClientToServer.Stub.asInterface(service);
+            if (mStub != null) {
+                try {
+                    mStub.client2server("Client Send to Server");
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         @Override
@@ -52,14 +58,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void initView(){
+    private void initView() {
         ivClient = findViewById(R.id.iv_pic);
         btBind = findViewById(R.id.btn_bind_service);
         btUnBind = findViewById(R.id.btn_unbind_service);
         btClientToServer = findViewById(R.id.btn_send_to_server);
     }
 
-    private void initData(){
+    private void initData() {
         ivClient.setOnClickListener(this);
         btBind.setOnClickListener(this);
         btUnBind.setOnClickListener(this);
@@ -69,45 +75,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        if(id == R.id.iv_pic){
+        if (id == R.id.iv_pic) {
             Log.d(TAG, "you click Image");
-        }else if(id == R.id.btn_bind_service){
+        } else if (id == R.id.btn_bind_service) {
             Log.d(TAG, "you click btn_bind_service");
             bindService();
-        }else if(id == R.id.btn_unbind_service){
+        } else if (id == R.id.btn_unbind_service) {
             Log.d(TAG, "you click btn_unbind_service");
             unbindService();
-        }else if(id == R.id.btn_send_to_server){
+        } else if (id == R.id.btn_send_to_server) {
             Log.d(TAG, "you click btn_send_to_server");
-        }else {
+        } else {
             Log.d(TAG, "Error click");
         }
     }
 
-    private void bindService(){
-        if(mStub != null){
-            return;
-        }
+    private void bindService() {
         Intent intent = new Intent("com.example.server.AidlService");
-        intent.setClassName("com.example.server","com.example.server.MyService");
-        try {
-            boolean bindSucc = bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-            if (bindSucc) {
-                Log.d(TAG, "bind ok");
-            } else {
-                Log.d(TAG, "bind fail");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        intent.setClassName("com.example.server", "com.example.server.MyService");
+        boolean bindSucc = bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        if (bindSucc) {
+            Log.d(TAG, "bind ok");
+        } else {
+            Log.d(TAG, "bind fail");
         }
-        try {
-            mStub.client2server("Client Send to Server");
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+
     }
 
-    private void unbindService(){
+    private void unbindService() {
         unbindService(mServiceConnection);
     }
 }

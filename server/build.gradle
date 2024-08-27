@@ -8,7 +8,9 @@ android {
 
     defaultConfig {
         minSdk 26
-        applicationId "com.frank.aidldemo.server"
+        // 测试AIDL连接不通原因在这
+        // 发现Intent.setComponent中的pakcagename填的是applicationId
+        applicationId "com.example.server"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
