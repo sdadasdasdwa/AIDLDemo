@@ -93,9 +93,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             boolean bindSucc = bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
             if (bindSucc) {
-                Toast.makeText(this, "bind ok", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "bind ok");
             } else {
-                Toast.makeText(this, "bind fail", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "bind fail");
             }
         } catch (Exception e) {
             e.printStackTrace();
