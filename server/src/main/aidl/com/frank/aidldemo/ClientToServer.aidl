@@ -7,5 +7,5 @@ interface ClientToServer {
 
     void sendBook(in Book book);
 
-    String client2server(String param);
+    void  client2server(in ParcelFileDescriptor pfd);
 }

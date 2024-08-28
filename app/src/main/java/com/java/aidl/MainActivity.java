@@ -86,9 +86,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             unbindService();
         } else if (id == R.id.btn_send_to_server) {
             Log.d(TAG, "you click btn_send_to_server");
+            sendToServer();
         } else {
             Log.d(TAG, "Error click");
         }
+    }
+
+    private void sendToServer(){
+        
     }
 
     private void bindService() {
