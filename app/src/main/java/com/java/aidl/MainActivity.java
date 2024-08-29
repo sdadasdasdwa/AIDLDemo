@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.MemoryFile;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +19,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.frank.aidldemo.Book;
 import com.frank.aidldemo.ClientToServer;
 import com.frank.aidldemo.R;
+
+import java.io.FileDescriptor;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -93,7 +99,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void sendToServer(){
-        
+        if (mStub == null) {
+            return;
+        }
+        try {
+            InputStream inputStream = getAssets().open("icon.png");
+            // bitmap -> inputStream -> byteArray  -> fileDescriptor -> ParcelFileDescriptor
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                byte[] bytes = inputStream.readAllBytes();
+
+                MemoryFile memoryFile = new MemoryFile("client_image", bytes.length);
+                // 向memoryFile中写入字节数组
+                memoryFile.writeBytes(bytes, 0, 0, bytes.length);
+                // 通过调用反射函数将memoryFile转换为FileDescriptor
+                FileDescriptor fileDescriptor = MemoryFileUtils.getFileDescriptor(memoryFile);
+
+                ParcelFileDescriptor parcelFileDescriptor = ParcelFileDescriptor.dup(fileDescriptor);
+                // dup 方法：这是一个静态方法，用于复制一个文件描述符。它接收一个 FileDescriptor 对象作为参数，
+                // 并返回一个新的 ParcelFileDescriptor 对象，该对象与原始文件描述符关联。
+                mStub.client2server(parcelFileDescriptor);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void bindService() {
