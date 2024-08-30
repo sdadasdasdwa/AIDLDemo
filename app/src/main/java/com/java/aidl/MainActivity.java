@@ -4,6 +4,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.MemoryFile;
@@ -16,11 +19,14 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.frank.aidldemo.Book;
 import com.frank.aidldemo.ClientToServer;
 import com.frank.aidldemo.R;
+import com.frank.aidldemo.ServerToClient;
 
 import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -42,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (mStub != null) {
                 try {
                     mStub.sendBook(new Book("I'm Ms.CG"));
+                    mStub.registerCallback(callback);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -55,6 +62,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
+
+    private final ServerToClient.Stub callback = new ServerToClient.Stub() {
+        @Override
+        public void server2client(ParcelFileDescriptor pfd) throws RemoteException {
+            // pfd -> fd -> inputStream -> byteArray -> bitmap
+            FileDescriptor fileDescriptor = pfd.getFileDescriptor();
+            FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
+            byte[] bytes = null;
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    bytes = fileInputStream.readAllBytes();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            if (bitmap != null) {
+                byte[] finalBytes = bytes;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(MainActivity.this)
+                                .asBitmap()  // 明确指定加载的是Bitmap
+                                .load(finalBytes) // 加载字节数组形式的图片
+                                .into(ivClient); // 将图片显示到ImageView中
+                    }
+                });
+
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void sendToServer(){
+    private void sendToServer() {
         if (mStub == null) {
             return;
         }
@@ -139,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void unbindService() {
-        if(mStub!=null){
+        if (mStub != null) {
             unbindService(mServiceConnection);
             Log.d(TAG, "unbind success");
             mStub = null;
@@ -148,12 +186,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onDestroy() {
-        if(mStub != null){
-//            try {
-//                mStub.asBinder().unlinkToDeath(mDeathRecipient, 0);
-//            } catch (RemoteException e) {
-//                e.printStackTrace();
-//            }
+        if (mStub != null) {
+            try {
+                mStub.unregisterCallback(callback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             unbindService(mServiceConnection);
         }
         super.onDestroy();

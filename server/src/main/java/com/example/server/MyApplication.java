@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.ParcelFileDescriptor;
 
 public class MyApplication extends Application {
 
@@ -24,7 +25,11 @@ public class MyApplication extends Application {
                     // 处理bytes数组
                     getDataCallback.onGetClientData(bytes);
                     break;
-
+                case 2:
+                    ParcelFileDescriptor parcelFileDescriptor = (ParcelFileDescriptor) msg.obj;
+                    // 处理bytes数组
+                    sendDataCallback.onSendClientData(parcelFileDescriptor);
+                    break;
                 default:
                     break;
             }
@@ -55,7 +60,7 @@ public class MyApplication extends Application {
     }
 
     interface OnSendClientDataCallback{
-        void onSendClientData(byte[] bytes);
+        void onSendClientData(ParcelFileDescriptor parcelFileDescriptor);
     }
 
     public void setOnSendClientDataCallback(OnSendClientDataCallback onSendClientDataCallback){
