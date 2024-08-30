@@ -32,6 +32,7 @@ public class MyService extends Service {
             Log.d(TAG,"sendBook: " + book.toString());
         }
 
+
         @Override
         public void client2server(ParcelFileDescriptor pfd) throws RemoteException {
             Log.d(TAG, "客户端想服务端上传图片 " + pfd);
@@ -51,7 +52,7 @@ public class MyService extends Service {
             message.what = 1;
             message.obj = bytes;
             // Message用于应用内进行通信，这里是用于改变什么
-            MyApplication.application.mhandler.sendMessage(message);
+            MyApplication.getMyApplication().mhandler.sendMessage(message);
         }
 
 

@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         try {
-            InputStream inputStream = getAssets().open("icon.png");
+            InputStream inputStream = getAssets().open("people.jpg");
             // bitmap -> inputStream -> byteArray  -> fileDescriptor -> ParcelFileDescriptor
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                 byte[] bytes = inputStream.readAllBytes();
@@ -139,11 +139,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void unbindService() {
-        if(mServiceConnection!=null){
+        if(mStub!=null){
             unbindService(mServiceConnection);
             Log.d(TAG, "unbind success");
-            mServiceConnection = null;
+            mStub = null;
         }
+    }
 
+    @Override
+    protected void onDestroy() {
+        if(mStub != null){
+//            try {
+//                mStub.asBinder().unlinkToDeath(mDeathRecipient, 0);
+//            } catch (RemoteException e) {
+//                e.printStackTrace();
+//            }
+            unbindService(mServiceConnection);
+        }
+        super.onDestroy();
     }
 }
