@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         minSdk 26
-        applicationId "com.frank.aidldemo-server"
+        applicationId "com.frank.aidldemo_server"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"

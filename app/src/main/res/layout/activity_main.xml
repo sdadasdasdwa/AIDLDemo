@@ -28,6 +28,13 @@
                 android:textColor="#333333" />
 
             <Button
+                android:id="@+id/btn_unbind_service"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="客户端解除绑定服务"
+                android:textColor="#333333" />
+
+            <Button
                 android:id="@+id/btn_send_to_server"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
