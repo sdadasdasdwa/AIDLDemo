@@ -4,6 +4,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.MemoryFile
@@ -16,6 +18,8 @@ import com.frank.aidldemo.ICallbackInterface
 import com.frank.aidldemo.IMyAidlInterface
 import com.frank.aidldemo.R
 import com.frank.aidldemo.databinding.ActivityMainBinding
+import java.io.ByteArrayOutputStream
+import java.io.FileInputStream
 import java.io.IOException
 
 
@@ -27,9 +31,33 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private var mStub: IMyAidlInterface? = null
 
-    private val callback: ICallbackInterface = object :ICallbackInterface.Stub(){
+    private val callback: ICallbackInterface = object : ICallbackInterface.Stub() {
         override fun server2client(pfd: ParcelFileDescriptor?) {
+            val fileDescriptor = pfd?.fileDescriptor
+            val fis = FileInputStream(fileDescriptor)
+            val bytes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                fis.readAllBytes()
+            } else {
+                // 低于 API 33 时的兼容方法
+                val buffer = ByteArrayOutputStream()
+                val data = ByteArray(1024)
+                var nRead: Int
+                while (fis.read(data, 0, data.size).also { nRead = it } != -1) {
+                    buffer.write(data, 0, nRead)
+                }
+                buffer.flush()
+                buffer.toByteArray()
+            }
+            if (bytes != null && bytes.isNotEmpty()) {
+                Log.d("JACK", "bytes size:${bytes.size},thread:${Thread.currentThread().name}")
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                if (bitmap != null) {
+                    runOnUiThread {
+                        binding.ivPic.setImageBitmap(bitmap)
+                    }
 
+                }
+            }
         }
 
 
@@ -181,6 +209,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             /**
              * 发送数据
              */
+            Log.d(TAG, "mStub: " + mStub)
             mStub?.client2server(pfd)
 
         } catch (e: IOException) {

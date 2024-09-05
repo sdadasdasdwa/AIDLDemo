@@ -11,6 +11,7 @@ import android.os.RemoteException
 import android.util.Log
 import com.frank.aidldemo.ICallbackInterface
 import com.frank.aidldemo.IMyAidlInterface
+import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.io.IOException
 
@@ -18,7 +19,7 @@ import java.io.IOException
 class MyService : Service() {
     private val TAG:String = "Ms.CG"
 
-    private var callbackList: RemoteCallbackList<ICallbackInterface>? = null
+    private var callbackList: RemoteCallbackList<ICallbackInterface>? = RemoteCallbackList()
 
     private val mbind: IMyAidlInterface.Stub = object : IMyAidlInterface.Stub(){
         override fun sendMsg(param: String?): String? {
@@ -37,13 +38,18 @@ class MyService : Service() {
 
             // 从fileInputStream那里读取字节数组
             var bytes: ByteArray? = null
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    bytes = fileInputStream.readAllBytes()
+            bytes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                fileInputStream.readAllBytes()
+            } else {
+                // 低于 API 33 时的兼容方法
+                val buffer = ByteArrayOutputStream()
+                val data = ByteArray(1024)
+                var nRead: Int
+                while (fileInputStream.read(data, 0, data.size).also { nRead = it } != -1) {
+                    buffer.write(data, 0, nRead)
                 }
-            } catch (e: IOException) {
-                fileInputStream.close()
-                throw RuntimeException(e)
+                buffer.flush()
+                buffer.toByteArray()
             }
             Log.d(TAG, "byteArray size " + bytes!!.size)
             val message: Message = Message()

@@ -14,7 +14,8 @@ import java.io.FileDescriptor
 import java.io.IOException
 
 
-class MainActivity : AppCompatActivity(), View.OnClickListener,MyApplication.OnGetClientDataCallback {
+class MainActivity : AppCompatActivity(), View.OnClickListener,
+    MyApplication.OnGetClientDataCallback {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -30,11 +31,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,MyApplication.OnG
     }
 
     override fun onClick(v: View?) {
-        val id : Int  = v!!.id
-        if (id.equals(R.id.iv_pic)){
-            Log.d("pjjj","Click iv_Pic")
-        }else if(id.equals(R.id.btn_send_to_client)){
-            Log.d("pjjj","Click Btn_Send_To_Client")
+        val id: Int = v!!.id
+        if (id.equals(R.id.iv_pic)) {
+            Log.d("pjjj", "Click iv_Pic")
+        } else if (id.equals(R.id.btn_send_to_client)) {
+            Log.d("pjjj", "Click Btn_Send_To_Client")
             ServerToClient()
         }
 
@@ -53,20 +54,19 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,MyApplication.OnG
         try {
             // 图片bitmap ->inputStream -> byteArray  ->  MemoryFile ->  FileDescriptor -> ParcelFileDescriptor
             val inputStream = assets.open("server.png")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val bytes = inputStream.readAllBytes()
-                val memoryFile = MemoryFile("server_image", bytes.size)
-                memoryFile.writeBytes(bytes, 0, 0, bytes.size)
-                val fileDescriptor: FileDescriptor = MemoryFileUtils.getFileDescriptor(memoryFile)
-                // 将fd转换为pfd
-                val parcelFileDescriptor = ParcelFileDescriptor.dup(fileDescriptor)
-                // 接下来应该去调用客户端的接口了
-                val message: Message = Message()
-                message.what = 2
-                message.obj = parcelFileDescriptor
-                //
-                MyApplication.getMyApplication().mhandler.sendMessage(message)
-            }
+            val bytes = inputStream.readBytes()
+            Log.d("Ms.CG", "the server.png size: " + bytes.size)
+            val memoryFile = MemoryFile("server_image", bytes.size)
+            memoryFile.writeBytes(bytes, 0, 0, bytes.size)
+            val fileDescriptor: FileDescriptor = MemoryFileUtils.getFileDescriptor(memoryFile)
+            // 将fd转换为pfd
+            val parcelFileDescriptor = ParcelFileDescriptor.dup(fileDescriptor)
+            // 接下来应该去调用客户端的接口了
+            val message: Message = Message()
+            message.what = 2
+            message.obj = parcelFileDescriptor
+            //
+            MyApplication.getMyApplication().mhandler.sendMessage(message)
         } catch (e: IOException) {
             throw RuntimeException(e)
         }
